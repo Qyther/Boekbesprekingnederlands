@@ -443,7 +443,8 @@ document.addEventListener("mousedown",()=>{
 });
 document.addEventListener("keydown",e=>{
 	if(e.key==="j") pointtotal=Math.max(pointtotal-10,10);
-	if(e.key==="k") pointtotal+=10;
+	else if(e.key==="k") pointtotal+=10;
+	else return;
 	points=[];
 	last=0;
 });
