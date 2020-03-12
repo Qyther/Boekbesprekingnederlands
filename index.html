@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Boekbespreking nederlands</title>
+  </head>
+  <body>
+    <div class="top">
+      <p class="aname">Josh van Vliet, 3D</p>
+    </div>
+    <div class="center">
+      <canvas></canvas>
+    </div>
+    <div class="bottom">
+      <div class="balls">
+        <div class="ball chosen"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+        <div class="ball"></div>
+      </div>
+    </div>
+	
+	<div class="overlay">
+		<div class="middletext">Struisvogelkoorts, geschreven door Abbing & Van Cleeff</div>
+		<div class="picture"></div>
+	</div>
+  </body>
+</html>
+<style>
+* {
+  user-select: none;
+}
+.overlay {
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 3;
+	background: rgb(255,245,215);
+	transition: 1s height;
+	transition-timing-function: ease;
+}
+.middletext {
+	font-family: monospace;
+	font-size: 3vw;
+	text-align: center;
+	line-height: 25vh;
+	transition: 1s margin-top;
+	transition-timing-function: ease;
+}
+.picture {
+	width: 40vh;
+	height: 65vh;
+	background-image: url("https://s.s-bol.com/imgbase0/imagebase3/extralarge/FC/5/9/0/2/9200000072632095.jpg");
+	background-size: 40vh 70vh;
+	position: fixed;
+	left: calc(50vw - 20vh);
+	top: calc(3vw + 15vh);
+	transition: 1s margin-top;
+	transition-timing-function: ease;
+}
+body {
+  background: rgb(84,84,175);
+  transition-timing-function: ease;
+  transition: background 1.5s;
+}
+.top::after {
+  content: "";
+  display: inline-block;
+  border-bottom: .2vh solid white;
+  position: fixed;
+  top: 3.5vh;
+  width: 0;
+  height: 3vh;
+  transition: width .25s;
+  transition-timing-function: ease;
+}
+.top:hover:after {
+  width: 17.5vh;
+}
+.top {
+  position: fixed;
+  left: 5vh;
+  top: 3.5vh;
+  line-height: 0;
+  color: white;
+  font-family: monospace;
+  font-weight: 900;
+  font-size: 2vh;
+  letter-spacing: -.15vh;
+  z-index: 2;
+}
+.bottom {
+  position: fixed;
+  top: 85vh;
+  left: 0;
+  width: 100vw;
+}
+.balls {
+  display: flex;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+  height: 10vh;
+  transition: .5s opacity;
+  transition-timing-function: ease;
+  opacity: 0;
+  visibility: hidden;
+}
+.ball {
+  width: 4vh;
+  height: 4vh;
+  cursor: pointer;
+}
+.ball:after {
+  content: "";
+  display: inline-block;
+  width: 1.25vh;
+  height: 1.25vh;
+  background: white;
+  border-radius: 5vh;
+  margin: 1.425vh;
+  transition: .25s width, .25s height, .25s margin;
+  transition-timing-function: ease;
+}
+.ball:hover:after, .chosen:after {
+  margin: .5vh;
+  width: 3vh;
+  height: 3vh;
+}
+.center {
+  width: 100vw;
+  height: 80vh;
+  position: fixed;
+  left: 0;
+  top: 5vh;
+}
+canvas {
+  position: fixed;
+  left: 0;
+  height: 80vh;
+}
+</style>
+<script>
+var loop;
+var sel=0;
+
+var colorcombos=[
+  [
+    [84,84,175],
+    [255,153,238]
+  ],
+  [
+    [255,99,107],
+    [0,20,59]
+  ],
+  [
+    [221,155,207],
+    [200,255,238]
+  ],
+  [
+    [0,20,59],
+    [255,204,247]
+  ],
+  [
+    [53,206,170],
+    [255,218,128]
+  ],
+  [
+    [255,186,66],
+    [251,237,224]
+  ],
+  [
+    [194,237,206],
+    [233,128,116]
+  ],
+  [
+    [244,69,93],
+    [255,202,81]
+  ],
+  [
+    [92,219,149],
+    [5,56,107]
+  ],
+  [
+    [111,179,184],
+    [194,237,206]
+  ],
+  [
+    [189,157,234],
+    [234,113,134]
+  ],
+  [
+    [57,63,77],
+    [254,218,106]
+  ],
+  [
+    [245,235,205],
+    [255,94,108]
+  ],
+  [
+    [202,228,219],
+    [0,48,63]
+  ],
+  [
+	[60,144,255],
+	[255,200,40]
+  ]
+];
+var texts=[
+  [
+    "1. Samenvatting",
+    `Ik vertel nu aan jullie de samenvatting.`
+  ],
+  [
+    `2. Tijd en
+tijdvolgorde`,
+    `Er wordt niet duidelijk verteld
+wanneer het zich afspeelde.`
+  ],
+  [
+    "3. Plaats/ruimte",
+    `Het speelt zich af in een dorp,
+maar er wordt niet verteld welk dorp.`
+  ],
+  [
+    `4. Karakterbeschrijving
+en ontwikkeling`,
+    `Deze karakters zal ik nu beschrijven;
+Feya, Sem, Dokter Brand,
+Niels, Alfons, Fernanda,
+Marcus, Mevrouw Londo,
+Ilona en Lot.`,
+  ],
+  [
+    "5. Onderlinge relaties",
+    `De onderlinge relaties van deze
+personen zal ik nu beschrijven.`
+  ],
+  [
+    `6. Geloofwaardigheid
+van het verhaal`,
+    `Naar mijn mening is
+het vrij ongeloofwaardig.
+Wie zou er nu harten gebruiken en
+hoe kunnen kinderen ergens zo
+gemakkelijk inbreken?`
+  ],
+  [
+    "7. Thematiek",
+    `Het is in de thema's detective
+	en geheimzinnigheid.`
+  ],
+  [
+    `8. Motto van
+het boek`,
+    `Er stond geen motto
+	in het boek.`
+  ],
+  [
+    "9. Taalgebruik",
+    `Het taalgebruik is
+niet heel formeel.`
+  ],
+  [
+    "10. Opdracht",
+    `Het boek is aan
+Rosa, Anna, Merel,
+Sarah en Gideon opgedragen.`
+  ],
+  [
+    `11. Vertelsituatie
+en perspectief`,
+    `Het verhaal is ingewikkeld geschreven
+en ik zal nu meer in detail gaan.`
+  ],
+  [
+    "12. Verhaalopbouw",
+    `Het verhaal bestaat uit zeven
+hoofdstukken, het boek had
+een epiloog en
+geen proloog. Er was een
+gesloten einde en het
+ging maar over één probleem.`
+  ],
+  [
+    "13. Over de auteur",
+    `Het boek is geschreven
+door een schrijversduo;
+Marja Roscam Abbing en
+Marjet van Cleeff.
+Ze hebben samen
+drie boeken geschreven.`
+  ],
+  [
+    `14. Eigen mening
+over het boek`,
+    `Mijn mening zal ik nu
+aan jullie vertellen.`
+  ],
+  [
+	"15. Het einde",
+	`Dit is het einde van
+	mij boekbespreking.`
+  ]
+];
+function swapPage(a) {
+  if(shw||a===sel) return;
+  var lsel=JSON.parse(JSON.stringify(sel));
+  sel=a;
+  [...document.getElementsByClassName("balls")[0].getElementsByClassName("ball")].map((x,y)=>x.classList[y===a?"add":"remove"]("chosen"));
+  shw=1;
+  sid=lsel>a?1:-1;
+  bgn=Date.now();
+  document.body.style.background="rgb("+colorcombos[a][0]+")";
+}
+var last;
+var curcol=[255,153,238];
+var shw;
+var points=[];
+var nr=0;
+var sw;
+function lerp(a,b,c) {
+  return a+(b-a)*c;
+}
+function easeInOut(t,b,c,d) {
+  return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
+}
+var moving;
+var pointtotal=125;
+var transformspeed=.05;
+var fps=240;
+var blobiness=3;
+var blobspeed=5;
+var offsl=0;
+var bgn;
+var curtext=texts[0];
+var curtextcol=colorcombos[0][0].map(x=>x+10);
+function frame() {
+  c=document.querySelector("canvas");
+  c.width=innerWidth;
+  c.height=c.offsetHeight;
+  ctx=c.getContext("2d");
+  //-=-//
+  var mn=Math.min(c.width,c.height);
+  var now=Date.now();
+  if(!last) {
+    nr=0;
+    last=now;
+    for(var i=0;i<pointtotal;i++) {
+      var an=Math.PI*2/pointtotal*i;
+      points.push([Math.cos(an)*nr+c.width/2,Math.sin(an)*nr+c.width/2]);
+    }
+  }
+  var delta=now-last;
+  var average=fps/(1000/(delta===0?1:delta));
+  if(shw===1) {
+    if(!sw) {
+      offsl=easeInOut(Date.now()-bgn,offsl,sid*c.width/50,500);
+      if(Math.abs(offsl)>c.width) {
+        sw=true;
+        curcol=colorcombos[sel][1];
+        curtext=texts[sel];
+        curtextcol=colorcombos[sel][0].map(x=>x+10);
+        offsl=-sid*c.width;
+        bgn=Date.now();
+      }
+    } else {
+      offsl=easeInOut(Date.now()-bgn,offsl,sid*c.width/50,500);
+      if(Math.abs(offsl)<c.width/30*average) {
+        shw=0;
+        sw=false;
+        offsl=0;
+      }
+    }
+  }
+  ctx.strokeStyle="white";
+  ctx.beginPath();
+  ctx.stroke();
+  ctx.closePath();
+  nr=lerp(nr,mn/(moving?2.1:2.4)*((Math.cos(Date.now()/750)+1)/2*.03+.97),transformspeed*average);
+  nr=Math.min(c.width/3.5,nr);
+  ctx.beginPath();
+  ctx.fillStyle="rgb("+curcol+")";
+  for(var i=0;i<points.length;i++) {
+    var an=Math.PI*2/pointtotal*i;
+    var mv=Math.cos(i/pointtotal*Math.PI*2+Math.sin(Date.now()/2000)/10*blobspeed)/6e4*blobiness;
+    var ext=moving?Math.cos(Date.now()/(2000+mv))*nr/60:Math.cos(Date.now()/(2000+mv))*nr/200;
+    points[i]=[Math.cos(an)*(nr+ext)+c.width/2+offsl,Math.sin(an)*(nr+ext)+c.height/2];
+    ctx.lineTo(...points[i]);
+  }
+  ctx.fill();
+  ctx.closePath();
+  ctx.fillStyle="rgb("+curtextcol+")";
+  ctx.textAlign="center";
+  
+  var szb=curtext[0].split("\n");
+  var fzt=c.height/1.75/JSON.parse(JSON.stringify(szb)).map((x,y,z)=>z[0]=z[0].length>x.length?z[0]:x).reverse()[0].length;
+  var fts=-nr+fzt*2.75;
+  ctx.font=fzt+"px monospace";
+  for(var i=0;i<szb.length;i++) {
+    ctx.fillText(szb[i],c.width/2+offsl,c.height/2+fts);
+    fts+=fzt;
+  }
+  
+  var sza=curtext[1].split("\n");
+  var fzs=c.height/.9*(nr/200*.5+.5)/JSON.parse(JSON.stringify(sza)).map((x,y,z)=>z[0]=z[0].length>x.length?z[0]:x).reverse()[0].length;
+  var ftr=fzs-sza.length*fzs/2;
+  ctx.font=fzs+"px monospace";
+  for(var i=0;i<sza.length;i++) {
+    ctx.fillText(sza[i],c.width/2+offsl,c.height/2+ftr);
+    ftr+=fzs;
+  }
+  last=now;
+}
+document.addEventListener("mousedown",()=>{
+	document.getElementsByClassName("overlay")[0].style.height=0;
+	document.getElementsByClassName("middletext")[0].style.marginTop=-innerHeight+"px";
+	document.getElementsByClassName("picture")[0].style.marginTop=-innerHeight+"px";
+	setTimeout(()=>{
+		["visibility","opacity"].map((x,y)=>document.getElementsByClassName("balls")[0].style[x]=["visible","1"][y]);
+		[...document.getElementsByClassName("balls")[0].getElementsByClassName("ball")].map((x,y)=>x.addEventListener("mousedown",()=>swapPage(y)));
+		document.addEventListener("mousemove",e=>{
+			var x=e.clientX-c.offsetLeft;
+			var y=e.clientY-c.offsetTop;
+			if(Math.hypot(x-c.offsetWidth/2,y-c.offsetHeight/2)<nr) moving=true;
+			else moving=false;
+		});
+		document.addEventListener("mousedown",()=>nr=moving?nr/2:nr);
+		setInterval(frame);
+	},1000);
+});
+document.addEventListener("keydown",e=>{
+	if(e.key==="j") pointtotal=Math.max(pointtotal-10,10);
+	if(e.key==="k") pointtotal+=10;
+	points=[];
+	last=0;
+});
+</script>
